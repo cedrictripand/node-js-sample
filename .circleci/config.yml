@@ -1,36 +1,29 @@
 version: 2.1
 
-executors:
-  docker-executor:
-    docker:
-      - image: cimg/base:stable
-
 jobs:
   build:
-    executor: docker-executor
+    machine:
+      image: ubuntu-2204:current
     steps:
       - checkout
-      - setup_remote_docker
       - run:
-          name: Build Docker Image
-          command: docker build -t mon-image:latest .
+          name: Build Docker image
+          command: docker build -t node-js-server .
       - run:
-          name: Lancer le container
-          command: docker run -d -p 8080:8080 --name test-container mon-image:latest
+          name: List Docker images
+          command: docker image list
       - run:
-          name: Vérifier l’API
-          command: |
-            sleep 5
-            curl -f http://localhost:8080 || exit 1
+          name: Run Docker container
+          command: docker run -d -p 8080:8080 --name node-js-server-container node-js-server
       - run:
-          name: Push sur Docker Hub
-          command: |
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            docker tag mon-image:latest TON-UTILISATEUR/mon-image:latest
-            docker push TON-UTILISATEUR/mon-image:latest
+          name: Wait for the server to start
+          command: sleep 5
+      - run:
+          name: Test the application with wget
+          command: wget -qO- http://localhost:8080/
 
 workflows:
   version: 2
-  build_and_push:
+  build-and-deploy:
     jobs:
       - build
