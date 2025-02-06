@@ -25,8 +25,8 @@ jobs:
           name: Push sur Docker Hub
           command: |
             echo "3#LQ%XjY6A^ghm" | docker login -u "cedricsvr" --password-stdin
-            docker tag mon-image:latest cedricsvr/mon-image:latest
-            docker push cedricsvr/mon-image:latest
+            docker tag node-js-server:latest cedricsvr/node-js-server:latest
+            docker push cedricsvr/node-js-server:latest
 
 workflows:
   version: 2
