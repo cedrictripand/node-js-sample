@@ -1,0 +1,36 @@
+version: 2.1
+
+executors:
+  docker-executor:
+    docker:
+      - image: cimg/base:stable
+
+jobs:
+  build:
+    executor: docker-executor
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image
+          command: docker build -t mon-image:latest .
+      - run:
+          name: Lancer le container
+          command: docker run -d -p 8080:8080 --name test-container mon-image:latest
+      - run:
+          name: Vérifier l’API
+          command: |
+            sleep 5
+            curl -f http://localhost:8080 || exit 1
+      - run:
+          name: Push sur Docker Hub
+          command: |
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            docker tag mon-image:latest TON-UTILISATEUR/mon-image:latest
+            docker push TON-UTILISATEUR/mon-image:latest
+
+workflows:
+  version: 2
+  build_and_push:
+    jobs:
+      - build
