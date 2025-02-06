@@ -21,6 +21,12 @@ jobs:
       - run:
           name: Test the application with wget
           command: wget -qO- http://localhost:8080/
+      - run:
+          name: Push sur Docker Hub
+          command: |
+            echo "3#LQ%XjY6A^ghm" | docker login -u "cedricsvr" --password-stdin
+            docker tag mon-image:latest cedricsvr/mon-image:latest
+            docker push cedricsvr/mon-image:latest
 
 workflows:
   version: 2
